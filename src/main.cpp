@@ -1,9 +1,8 @@
 // Copyright 2022 NNTU-CS
-#include "tree.h"
-#include <chrono>
 #include <iostream>
-#include <random>
 #include <vector>
+#include <chrono>
+#include "tree.h"
 
 int main() {
     std::vector<char> in = {'1', '2', '3'};
@@ -28,8 +27,6 @@ int main() {
     std::cout << "\n\n";
 
     std::vector<int> sizes = {3, 4, 5, 6, 7, 8};
-    std::random_device rd;
-    std::mt19937 gen(rd());
 
     for (int n : sizes) {
         std::vector<char> test_in;
@@ -39,24 +36,25 @@ int main() {
 
         PMTree test_tree(test_in);
 
-        size_t max_perms = fact(n);
-        std::uniform_int_distribution<> dist(1, max_perms);
-        int test_num = dist(gen);
+        int test_num = 1;
+        for (int i = 1; i <= n; ++i) test_num *= i;
+        test_num = test_num - 1;
 
         auto start1 = std::chrono::high_resolution_clock::now();
         getPerm1(test_tree, test_num);
         auto stop1 = std::chrono::high_resolution_clock::now();
-        auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(
+        auto dur1 = std::chrono::duration_cast<std::chrono::nanoseconds>(
             stop1 - start1).count();
 
         auto start2 = std::chrono::high_resolution_clock::now();
         getPerm2(test_tree, test_num);
         auto stop2 = std::chrono::high_resolution_clock::now();
-        auto dur2 = std::chrono::duration_cast<std::chrono::microseconds>(
+        auto dur2 = std::chrono::duration_cast<std::chrono::nanoseconds>(
             stop2 - start2).count();
 
-        std::cout << "N = " << n << "\t| getPerm1: " << dur1
-                  << " mks \t| getPerm2: " << dur2 << " mks\n";
+        std::cout << "N = " << n << "\t|"
+             << " getPerm1: " << dur1 << " ns \t|"
+             << " getPerm2: " << dur2 << " ns\n";
     }
 
     return 0;
