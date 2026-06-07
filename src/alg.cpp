@@ -1,9 +1,10 @@
 // Copyright 2022 NNTU-CS
-#include  <iostream>
-#include  <fstream>
-#include  <locale>
-#include  <cstdlib>
-#include  "tree.h"
+#include <fstream>
+#include <locale>
+#include <cstdlib>
+#include <algorithm>
+#include <vector>
+#include "tree.h"
 
 PMTree::PMTree(const std::vector<char>& src) {
     std::vector<char> sorted = src;
@@ -67,10 +68,11 @@ void dfsAll(PMTree::Node* node, std::vector<char>& current_path,
 
 std::vector<std::vector<char>> getAllPerms(const PMTree& tree) {
     std::vector<std::vector<char>> result;
-    if (!tree.root) return result;
+    PMTree::Node* root = tree.getRoot();
+    if (!root) return result;
     std::vector<char> path;
-    for (size_t i = 0; i < tree.root->links.size(); ++i) {
-        dfsAll(tree.root->links[i], path, result);
+    for (size_t i = 0; i < root->links.size(); ++i) {
+        dfsAll(root->links[i], path, result);
     }
     return result;
 }
@@ -95,11 +97,12 @@ void dfs1(PMTree::Node* node, std::vector<char>& path, int target,
 
 std::vector<char> getPerm1(const PMTree& tree, int num) {
     std::vector<char> result;
-    if (!tree.root || num < 1) return result;
+    PMTree::Node* root = tree.getRoot();
+    if (!root || num < 1) return result;
     int count = 0;
     std::vector<char> path;
-    for (size_t i = 0; i < tree.root->links.size(); ++i) {
-        dfs1(tree.root->links[i], path, num, count, result);
+    for (size_t i = 0; i < root->links.size(); ++i) {
+        dfs1(root->links[i], path, num, count, result);
         if (!result.empty()) break;
     }
     return result;
@@ -115,14 +118,15 @@ size_t fact(int n) {
 
 std::vector<char> getPerm2(const PMTree& tree, int num) {
     std::vector<char> result;
-    if (!tree.root || tree.root->links.empty()) return result;
-    size_t total = fact(tree.root->links.size());
-    if (num < 1 || num > (int)total) return result;
+    PMTree::Node* root = tree.getRoot();
+    if (!root || root->links.empty()) return result;
+    size_t total = fact(static_cast<int>(root->links.size()));
+    if (num < 1 || num > static_cast<int>(total)) return result;
     int k = num - 1;
-    PMTree::Node* current = tree.root;
+    PMTree::Node* current = root;
     while (!current->links.empty()) {
-        int L = current->links.size();
-        int branch_size = fact(L - 1);
+        int L = static_cast<int>(current->links.size());
+        int branch_size = static_cast<int>(fact(L - 1));
         int index = k / branch_size;
         k = k % branch_size;
         current = current->links[index];
