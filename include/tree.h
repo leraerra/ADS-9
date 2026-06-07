@@ -5,18 +5,19 @@
 #include <vector>
 
 class PMTree {
-public:
-    struct Node {
-        char sym;
-        std::vector<Node*> links;
-    };
-    explicit PMTree(const std::vector<char>& src);
-    ~PMTree();
+ public:
+  struct Node {
+    char sym;
+    std::vector<Node*> links;
+  };
+  explicit PMTree(const std::vector<char>& src);
+  ~PMTree();
+  Node* getRoot() const { return root; }
 
-private:
-    Node* root;
-    Node* generate(const std::vector<char>& available);
-    void destroy(Node* nodePtr);
+ private:
+  Node* root;
+  Node* generate(const std::vector<char>& available);
+  void destroy(Node* nodePtr);
 };
 
 std::vector<std::vector<char>> getAllPerms(const PMTree& tree);
@@ -24,4 +25,4 @@ std::vector<char> getPerm1(const PMTree& tree, int num);
 std::vector<char> getPerm2(const PMTree& tree, int num);
 size_t fact(int n);
 
-#endif// INCLUDE_TREE_H_
+#endif
