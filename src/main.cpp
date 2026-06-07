@@ -1,9 +1,9 @@
 // Copyright 2022 NNTU-CS
 #include "tree.h"
-#include <iostream>
-#include <vector>
 #include <chrono>
+#include <iostream>
 #include <random>
+#include <vector>
 
 int main() {
     std::vector<char> in = {'1', '2', '3'};
@@ -46,14 +46,17 @@ int main() {
         auto start1 = std::chrono::high_resolution_clock::now();
         getPerm1(test_tree, test_num);
         auto stop1 = std::chrono::high_resolution_clock::now();
-        auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1).count();
+        auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(
+            stop1 - start1).count();
 
         auto start2 = std::chrono::high_resolution_clock::now();
         getPerm2(test_tree, test_num);
         auto stop2 = std::chrono::high_resolution_clock::now();
-        auto dur2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2).count();
+        auto dur2 = std::chrono::duration_cast<std::chrono::microseconds>(
+            stop2 - start2).count();
 
-        std::cout << "N = " << n << "\t| getPerm1: " << dur1 << " mks \t| getPerm2: " << dur2 << " mks\n";
+        std::cout << "N = " << n << "\t| getPerm1: " << dur1
+                  << " mks \t| getPerm2: " << dur2 << " mks\n";
     }
 
     return 0;
