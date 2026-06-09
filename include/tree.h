@@ -3,30 +3,47 @@
 #define INCLUDE_TREE_H_
 
 #include <vector>
+#include <algorithm>
 
 class PMTree {
  public:
   struct Node {
-    char sym;
-    std::vector<Node*> links;
+    char val;
+    std::vector<Node*> down;
+    explicit Node(char v) : val(v) {}
   };
 
-  explicit PMTree(const std::vector<char>& src);
-  ~PMTree();
+  Node* top;
 
-  Node* root;
+  explicit PMTree(const std::vector<char>& src) {
+    top = new Node('\0');
+    std::vector<char> sortedSrc = src;
+    std::sort(sortedSrc.begin(), sortedSrc.end());
+    construct(top, sortedSrc);
+  }
+
+  ~PMTree() { clear(top); }
 
  private:
-  Node* generate(const std::vector<char>& available);
-  void destroy(Node* nodePtr);
+  void construct(Node* curNode, std::vector<char> remaining) {
+    for (size_t idx = 0; idx < remaining.size(); ++idx) {
+      Node* newNode = new Node(remaining[idx]);
+      curNode->down.push_back(newNode);
+      std::vector<char> nextRemaining = remaining;
+      nextRemaining.erase(nextRemaining.begin() + idx);
+      construct(newNode, nextRemaining);
+    }
+  }
+
+  void clear(Node* curNode) {
+    if (!curNode) return;
+    for (Node* child : curNode->down) clear(child);
+    delete curNode;
+  }
 };
 
-std::vector<std::vector<char» getAllPerms(const PMTree& tree);
-
-std::vector<char> getPerm1(const PMTree& tree, int num);
-
-std::vector<char> getPerm2(const PMTree& tree, int num);
-
-size_t fact(int n);
+std::vector<std::vector<char>> getAllPerms(PMTree& tree);
+std::vector<char> getPerm1(PMTree& tree, int num);
+std::vector<char> getPerm2(PMTree& tree, int num);
 
 #endif  // INCLUDE_TREE_H_
