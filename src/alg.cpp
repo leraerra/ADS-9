@@ -1,10 +1,11 @@
 // Copyright 2022 NNTU-CS
-#include  <iostream>
-#include  <fstream>
-#include  <locale>
-#include  <cstdlib>
-#include  "tree.h"
+#include <cstdlib>
+
+#include <fstream>
+#include <iostream>
+#include <locale>
 #include <vector>
+
 #include "tree.h"
 
 namespace {
@@ -40,7 +41,7 @@ void navigate(PMTree::Node* node, int num, std::vector<char>& res) {
   navigate(chosen, rem, res);
 }
 
-}
+} // namespace
 
 std::vector<std::vector<char>> getAllPerms(PMTree& tree) {
   std::vector<std::vector<char>> out;
