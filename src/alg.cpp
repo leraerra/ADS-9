@@ -1,183 +1,66 @@
 // Copyright 2022 NNTU-CS
-
-#include <algorithm>
+#include  <iostream>
+#include  <fstream>
+#include  <locale>
+#include  <cstdlib>
+#include  "tree.h"
 #include <vector>
 #include "tree.h"
 
-PMTree::PMTree(const std::vector<char>& src) {
-  root = new Node();
-  root->sym = '\0';
+namespace {
 
-  std::vector<char> sorted = src;
-  std::sort(sorted.begin(), sorted.end());
-
-  for (size_t i = 0; i < sorted.size(); ++i) {
-    Node* child = new Node();
-    child->sym = sorted[i];
-
-    std::vector<char> rest;
-    for (size_t j = 0; j < sorted.size(); ++j) {
-      if (i != j) {
-        rest.push_back(sorted[j]);
-      }
-    }
-
-    Node* subtree = generate(rest);
-
-    if (subtree != nullptr) {
-      child->links = subtree->links;
-      delete subtree;
-    }
-
-    root->links.push_back(child);
-  }
+int64_t fact(int n) {
+  int64_t f = 1;
+  for (int i = 2; i <= n; ++i) f *= i;
+  return f;
 }
 
-PMTree::~PMTree() {
-  destroy(root);
-}
-
-PMTree::Node* PMTree::generate(const std::vector<char>& available) {
-  Node* node = new Node();
-  node->sym = '\0';
-
-  for (size_t i = 0; i < available.size(); ++i) {
-    Node* child = new Node();
-    child->sym = available[i];
-
-    std::vector<char> rest;
-
-    for (size_t j = 0; j < available.size(); ++j) {
-      if (i != j) {
-        rest.push_back(available[j]);
-      }
-    }
-
-    if (!rest.empty()) {
-      Node* subtree = generate(rest);
-
-      child->links = subtree->links;
-
-      delete subtree;
-    }
-
-    node->links.push_back(child);
-  }
-
-  return node;
-}
-
-void PMTree::destroy(Node* nodePtr) {
-  if (nodePtr == nullptr) {
+void traverse(PMTree::Node* node, std::vector<char>& cur,
+             std::vector<std::vector<char>>& out) {
+  if (node->down.empty()) {
+    out.push_back(cur);
     return;
   }
-
-  for (size_t i = 0; i < nodePtr->links.size(); ++i) {
-    destroy(nodePtr->links[i]);
+  for (PMTree::Node* child : node->down) {
+    cur.push_back(child->val);
+    traverse(child, cur, out);
+    cur.pop_back();
   }
-
-  delete nodePtr;
 }
 
-size_t fact(int n) {
-  size_t result = 1;
-
-  for (int i = 2; i <= n; ++i) {
-    result *= i;
-  }
-
-  return result;
+void navigate(PMTree::Node* node, int num, std::vector<char>& res) {
+  if (node->down.empty()) return;
+  int k = static_cast<int>(node->down.size());
+  int64_t sub = fact(k - 1);
+  int idx = static_cast<int>((num - 1) / sub);
+  int rem = static_cast<int>((num - 1) % sub) + 1;
+  if (idx < 0 || idx >= k) return;
+  PMTree::Node* chosen = node->down[idx];
+  res.push_back(chosen->val);
+  navigate(chosen, rem, res);
 }
 
-void dfsAll(PMTree::Node* node,
-            std::vector<char>* path,
-            std::vector<std::vector<char»* result) {
-  path->push_back(node->sym);
-
-  if (node->links.empty()) {
-    result->push_back(*path);
-    path->pop_back();
-    return;
-  }
-
-  for (size_t i = 0; i < node->links.size(); ++i) {
-    dfsAll(node->links[i], path, result);
-  }
-
-  path->pop_back();
 }
 
-std::vector<std::vector<char» getAllPerms(const PMTree& tree) {
-  std::vector<std::vector<char» result;
-
-  if (tree.root == nullptr) {
-    return result;
-  }
-
-  std::vector<char> path;
-
-  for (size_t i = 0; i < tree.root->links.size(); ++i) {
-    dfsAll(tree.root->links[i], &path, &result);
-  }
-
-  return result;
+std::vector<std::vector<char>> getAllPerms(PMTree& tree) {
+  std::vector<std::vector<char>> out;
+  std::vector<char> cur;
+  if (tree.top) traverse(tree.top, cur, out);
+  return out;
 }
 
-void dfsPerm(PMTree::Node* node,
-             std::vector<char>* path,
-             int target,
-             int* counter,
-             std::vector<char>* answer) {
-  if (!answer->empty()) {
-    return;
-  }
-
-  path->push_back(node->sym);
-
-  if (node->links.empty()) {
-    ++(*counter);
-
-    if (*counter == target) {
-      @id856347212 (*answer) = *path;
-    }
-
-    path->pop_back();
-    return;
-  }
-
-  for (size_t i = 0; i < node->links.size(); ++i) {
-    dfsPerm(node->links[i], path, target, counter, answer);
-  }
-
-  path->pop_back();
+std::vector<char> getPerm1(PMTree& tree, int num) {
+  std::vector<std::vector<char>> all = getAllPerms(tree);
+  if (num < 1 || num > static_cast<int>(all.size())) return {};
+  return all[num - 1];
 }
 
-std::vector<char> getPerm1(const PMTree& tree, int num) {
-  std::vector<char> answer;
-
-  if (tree.root == nullptr || num < 1) {
-    return answer;
-  }
-
-  int counter = 0;
-  std::vector<char> path;
-
-  for (size_t i = 0; i < tree.root->links.size(); ++i) {
-    dfsPerm(tree.root->links[i],
-            &path,
-            num,
-            &counter,
-            &answer);
-
-    if (!answer.empty()) {
-      break;
-    }
-  }
-
-  return answer;
-}
-
-std::vector<char> getPerm2(const PMTree& tree, int num) {
-  std::vector<char> perms = getPerm1(tree, num);
-  return perms;
+std::vector<char> getPerm2(PMTree& tree, int num) {
+  std::vector<char> res;
+  if (!tree.top || tree.top->down.empty()) return {};
+  int k = static_cast<int>(tree.top->down.size());
+  int64_t total = fact(k);
+  if (num < 1 || num > total) return {};
+  navigate(tree.top, num, res);
+  return res;
 }
